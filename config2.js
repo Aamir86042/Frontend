@@ -1,7 +1,7 @@
 // config2.js - backend URLs (Railway). Baaki sab kuch (pages, content, agent forms...) purani config.js se aata hai.
 import { config as base } from "./config.js";
 
-export const API_BASE = "backend-production-6aefa9f3.up.railway.app";
+export const API_BASE = "https://backend-production-6aefa9f3.up.railway.app";
 const url = (path) => `${API_BASE}${path}`;
 
 export const config = {
