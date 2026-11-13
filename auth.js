@@ -143,73 +143,37 @@ const createResendTimer = (button) => {
 };
 
 const initLogin = () => {
-  const stepOne = $("#stepOne");
-  const stepTwo = $("#stepTwo");
-  const otp = createOtpInput($("#otp"));
-  const timer = createResendTimer($("#resend"));
-  let credentials = null;
-
-  const requestCode = () => post(api.login, credentials);
-
-  stepOne.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const form = new FormData(stepOne);
-    credentials = {
-      email: form.get("email").trim().toLowerCase(),
-      password: form.get("password"),
-      confirmPassword: form.get("confirm"),
-    };
-    if (!isEmail(credentials.email)) return say($("#msg"), "Enter a valid email address.");
-    if (credentials.password.length < 8) return say($("#msg"), "Password must be at least 8 characters.");
-    if (credentials.password !== credentials.confirmPassword) return say($("#msg"), "Passwords do not match.");
-
-    setBusy(stepOne, true);
-    const { ok, data } = await requestCode();
-    setBusy(stepOne, false);
-    if (!ok) return say($("#msg"), data.error || "Sign in failed.");
-
-    $("#sentTo").textContent = credentials.email;
-    say($("#msg"), "");
-    showStep(2);
-    otp.focus();
-    timer.start();
-  });
-
-  stepTwo.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const code = otp.value();
-    if (code.length !== OTP.length) return say($("#msgTwo"), `Enter the ${OTP.length}-digit code.`);
-
-    setBusy(stepTwo, true);
-    const { ok, data } = await post(api.loginVerify, { email: credentials.email, code });
-    setBusy(stepTwo, false);
-    if (!ok) {
-      otp.clear();
-      return say($("#msgTwo"), data.error || "Verification failed.");
-    }
-
-    setSession(data.token, data.user);
-    say($("#msgTwo"), "Signed in. Redirecting…", "ok");
-    location.replace(nextUrl);
-  });
-
-  $("#resend").addEventListener("click", async () => {
-    const { ok, data } = await requestCode();
-    if (!ok) return say($("#msgTwo"), data.error || "Could not resend the code.");
-    say($("#msgTwo"), "A new code has been sent.", "ok");
-    timer.start();
-  });
-
-  $("#back").addEventListener("click", () => showStep(1));
-};
-
-const initSignup = () => {
   const form = $("#stepOne");
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const fields = new FormData(form);
-    const body = {
+    const body = { email: fields.get("email").trim().toLowerCase(), password: fields.get("password") };
+    if (!isEmail(body.email)) return say($("#msg"), "Enter a valid email address.");
+    if (!body.password) return say($("#msg"), "Enter your password.");
+
+    setBusy(form, true);
+    const { ok, data } = await post(api.login, body);
+    setBusy(form, false);
+    if (!ok) return say($("#msg"), data.error || "Sign in failed.");
+
+    setSession(data.token, data.user);
+    say($("#msg"), "Signed in. Redirecting…", "ok");
+    location.replace(nextUrl);
+  });
+};
+
+const initSignup = () => {
+  const stepOne = $("#stepOne");
+  const stepTwo = $("#stepTwo");
+  const otp = createOtpInput($("#otp"));
+  const timer = createResendTimer($("#resend"));
+  let body = null;
+
+  stepOne.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const fields = new FormData(stepOne);
+    body = {
       name: fields.get("name").trim(),
       email: fields.get("email").trim().toLowerCase(),
       phone: fields.get("phone").replace(/[\s-]/g, ""),
@@ -222,14 +186,44 @@ const initSignup = () => {
     if (body.password.length < 8) return say($("#msg"), "Password must be at least 8 characters.");
     if (body.password !== body.confirmPassword) return say($("#msg"), "Passwords do not match.");
 
-    setBusy(form, true);
-    const { ok, data } = await post(api.signup, body);
-    setBusy(form, false);
-    if (!ok) return say($("#msg"), data.error || "Sign up failed.");
+    setBusy(stepOne, true);
+    const { ok, data } = await post(api.signupOtp, body);
+    setBusy(stepOne, false);
+    if (!ok) return say($("#msg"), data.error || "Could not send the code.");
 
-    say($("#msg"), "Account created. Redirecting to sign in…", "ok");
-    setTimeout(() => location.replace(loginPage), 1200);
+    $("#sentTo").textContent = body.email;
+    say($("#msg"), "");
+    showStep(2);
+    otp.focus();
+    timer.start();
   });
+
+  stepTwo.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const code = otp.value();
+    if (code.length !== OTP.length) return say($("#msgTwo"), `Enter the ${OTP.length}-digit code.`);
+
+    setBusy(stepTwo, true);
+    const { ok, data } = await post(api.signup, { ...body, code });
+    setBusy(stepTwo, false);
+    if (!ok) {
+      otp.clear();
+      return say($("#msgTwo"), data.error || "Sign up failed.");
+    }
+
+    setSession(data.token, data.user);
+    say($("#msgTwo"), "Account created. Redirecting…", "ok");
+    location.replace(nextUrl);
+  });
+
+  $("#resend").addEventListener("click", async () => {
+    const { ok, data } = await post(api.signupOtp, body);
+    if (!ok) return say($("#msgTwo"), data.error || "Could not resend the code.");
+    say($("#msgTwo"), "A new code has been sent.", "ok");
+    timer.start();
+  });
+
+  $("#back").addEventListener("click", () => showStep(1));
 };
 
 const initForgot = () => {
