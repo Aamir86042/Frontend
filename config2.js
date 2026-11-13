@@ -11,9 +11,9 @@ export const config = {
     ...base.auth,
     api: {
       ...(base.auth && base.auth.api),
-      signup:      url("/api/auth/signup"),
+      signupOtp:   url("/api/auth/signup/otp"),   // signup step 1: OTP bhejo
+      signup:      url("/api/auth/signup"),       // signup step 2: OTP ke saath account banao
       login:       url("/api/auth/login"),
-      loginVerify: url("/api/auth/login/verify"), // backend me abhi nahi hai
       forgot:      url("/api/auth/forgot"),       // backend me abhi nahi hai
       reset:       url("/api/auth/reset"),        // backend me abhi nahi hai
       otpSend:     url("/api/otp/send"),
