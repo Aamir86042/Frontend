@@ -1,7 +1,7 @@
 import { config as C } from "./config2.js";
 import { getToken, setSession, safeNext } from "./session.js";
 
-const { api, pages, otp: OTP, backgrounds } = C.auth;
+const { api, pages, otp: OTP, backgrounds = [] } = C.auth;
 
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -13,16 +13,24 @@ const isEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 const isPhone = (value) => /^(\+91)?[6-9]\d{9}$/.test(value);
 
 const post = async (url, body) => {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 25000);
   try {
     const response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
+      signal: controller.signal,
     });
     const data = await response.json().catch(() => ({}));
+    if (response.status === 404) data.error = "This service is not available on the server yet (404).";
+    else if (!response.ok && !data.error) data.error = `Server error (${response.status}).`;
     return { ok: response.ok, data };
-  } catch {
-    return { ok: false, data: { error: "Cannot reach the server. Please try again." } };
+  } catch (error) {
+    const message = error.name === "AbortError" ? "The server is taking too long. Please try again." : "Cannot reach the server. Please try again.";
+    return { ok: false, data: { error: message } };
+  } finally {
+    clearTimeout(timer);
   }
 };
 
@@ -274,7 +282,8 @@ const initForgot = () => {
   });
 
   $("#resend").addEventListener("click", async () => {
-    await sendCode();
+    const { ok, data } = await sendCode();
+    if (!ok) return say($("#msgTwo"), data.error || "Could not resend the code.");
     say($("#msgTwo"), "A new code has been sent if the email is registered.", "ok");
     timer.start();
   });
