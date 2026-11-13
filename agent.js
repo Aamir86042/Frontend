@@ -26,20 +26,29 @@ const loadProfile = () => {
 const saveProfile = (profile) => localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
 
 const authFetch = async (url, body) => {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 25000);
   try {
     const response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
       body: JSON.stringify(body),
+      signal: controller.signal,
     });
-    if (response.status === 401) {
+    if (response.status === 401 && url !== api.otpVerify) {
       clearSession();
       location.replace(loginUrl(C.auth.pages.agent));
       return { ok: false, data: {} };
     }
-    return { ok: response.ok, data: await response.json().catch(() => ({})) };
-  } catch {
-    return { ok: false, data: { error: "Cannot reach the server." } };
+    const data = await response.json().catch(() => ({}));
+    if (response.status === 404) data.error = "This service is not available on the server yet (404).";
+    else if (!response.ok && !data.error) data.error = `Server error (${response.status}).`;
+    return { ok: response.ok, data };
+  } catch (error) {
+    const message = error.name === "AbortError" ? "The server is taking too long. Please try again." : "Cannot reach the server.";
+    return { ok: false, data: { error: message } };
+  } finally {
+    clearTimeout(timer);
   }
 };
 
