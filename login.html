@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#063B82">
+  <title>Sign in | Vellore Institute of Technology</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=Source+Serif+4:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="auth.css">
+</head>
+<body data-page="login">
+  <div class="bg" id="bg"></div>
+  <div class="veil"></div>
+  <main class="shell">
+    <section class="intro">
+      <a class="logo" href="index.html"><span class="mark">VIT</span><span>Vellore Institute of Technology</span></a>
+      <h1>Welcome back to your campus.</h1>
+      <p>Sign in to use the AI assistant and the smart form agent.</p>
+      <ul class="perks">
+        <li>AI assistant for admissions and programmes</li>
+        <li>Smart agent that fills your forms for you</li>
+        <li>Account secured with email OTP</li>
+      </ul>
+    </section>
+    <section class="panel">
+      <ol class="steps" aria-label="Progress"><li class="on">Credentials</li><li>Verify OTP</li></ol>
+      <form id="stepOne" novalidate>
+        <h2>Sign in</h2>
+        <p class="hint">Enter your details to receive a one-time code.</p>
+        <label class="field"><span>Email</span><input type="email" name="email" autocomplete="email" required></label>
+        <label class="field"><span>Password</span>
+          <div class="pw"><input type="password" name="password" autocomplete="current-password" required><button type="button" class="eye" data-toggle>Show</button></div>
+        </label>
+        <label class="field"><span>Confirm password</span>
+          <div class="pw"><input type="password" name="confirm" autocomplete="current-password" required><button type="button" class="eye" data-toggle>Show</button></div>
+        </label>
+        <p class="msg" id="msg" role="alert"></p>
+        <button class="cta" type="submit">Continue</button>
+        <p class="alt"><a href="forgot.html">Forgot password?</a></p>
+        <p class="alt">New here? <a href="signup.html">Create an account</a></p>
+      </form>
+      <form id="stepTwo" hidden novalidate>
+        <h2>Verify OTP</h2>
+        <p class="hint">We sent a code to <b id="sentTo"></b>. It is valid for 5 minutes.</p>
+        <div class="otp" id="otp" role="group" aria-label="One-time password"></div>
+        <p class="msg" id="msgTwo" role="alert"></p>
+        <button class="cta" type="submit">Verify and continue</button>
+        <button type="button" class="link" id="resend" disabled>Resend code</button>
+        <button type="button" class="link" id="back">← Change email</button>
+      </form>
+    </section>
+  </main>
+  <script type="module" src="auth.js"></script>
+</body>
+</html>
