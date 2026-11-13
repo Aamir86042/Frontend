@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#063B82">
+  <title>Create account | Vellore Institute of Technology</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=Source+Serif+4:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="auth.css">
+</head>
+<body data-page="signup">
+  <div class="bg" id="bg"></div>
+  <div class="veil"></div>
+  <main class="shell">
+    <section class="intro">
+      <a class="logo" href="index.html"><span class="mark">VIT</span><span>Vellore Institute of Technology</span></a>
+      <h1>Join the VIT community.</h1>
+      <p>Create your account once and use the AI tools on every visit.</p>
+      <ul class="perks">
+        <li>AI assistant for admissions and programmes</li>
+        <li>Smart agent that fills your forms for you</li>
+        <li>Account secured with email OTP</li>
+      </ul>
+    </section>
+    <section class="panel">
+      <form id="stepOne" novalidate>
+        <h2>Create account</h2>
+        <p class="hint">It takes less than a minute.</p>
+        <label class="field"><span>Full name</span><input type="text" name="name" autocomplete="name" required></label>
+        <label class="field"><span>Email</span><input type="email" name="email" autocomplete="email" required></label>
+        <label class="field"><span>Mobile number</span><input type="tel" name="phone" autocomplete="tel" required></label>
+        <label class="field"><span>Password</span>
+          <div class="pw"><input type="password" name="password" autocomplete="new-password" required><button type="button" class="eye" data-toggle>Show</button></div>
+          <div class="meter" id="meter" data-level="0"><i></i></div>
+        </label>
+        <label class="field"><span>Confirm password</span>
+          <div class="pw"><input type="password" name="confirm" autocomplete="new-password" required><button type="button" class="eye" data-toggle>Show</button></div>
+        </label>
+        <p class="msg" id="msg" role="alert"></p>
+        <button class="cta" type="submit">Create account</button>
+        <p class="alt">Already registered? <a href="login.html">Sign in</a></p>
+      </form>
+    </section>
+  </main>
+  <script type="module" src="auth.js"></script>
+</body>
+</html>
