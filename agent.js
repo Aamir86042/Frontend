@@ -108,11 +108,11 @@ const showMenu = () => {
   input.type = "text";
   input.value = "";
   input.setAttribute("list", "");
-  input.placeholder = "Ask anything or pick a form…";
+  input.placeholder = "Type naturally, e.g. fill my admission form";
   setChips(Object.entries(FORMS).map(([key, form]) => [form.title, () => startForm(key)]));
 };
 
-const startForm = (key) => {
+const beginForm = (key) => {
   const form = FORMS[key];
   const profile = loadProfile();
   state = { mode: "ask", key, data: {}, queue: [] };
@@ -120,6 +120,11 @@ const startForm = (key) => {
     if (profile[name]) state.data[name] = profile[name];
     else state.queue.push(name);
   });
+};
+
+const startForm = (key) => {
+  const form = FORMS[key];
+  beginForm(key);
   say(form.title, "u");
   say(
     state.queue.length === form.fields.length
@@ -211,14 +216,71 @@ const cancel = () => {
   showMenu();
 };
 
-const chat = async (question) => {
-  say(question, "u");
-  history.push({ role: "user", content: question });
+const context = () => {
+  const specs = {};
+  Object.entries(FIELDS).forEach(([name, field]) => {
+    specs[name] = { label: field.label, type: field.type, options: field.options, min: field.min, max: field.max, ask: field.question };
+  });
+  return {
+    mode: state.mode,
+    forms: Object.fromEntries(Object.entries(FORMS).map(([key, form]) => [key, { title: form.title, fields: form.fields }])),
+    form: state.key || null,
+    specs,
+    collected: state.data || {},
+    missing: state.queue || [],
+    asking: state.mode === "ask" ? state.queue[0] : null,
+    profile: loadProfile(),
+  };
+};
+
+const applyFill = (fill) => {
+  const rejected = [];
+  const allowed = FORMS[state.key].fields;
+  Object.entries(fill || {}).forEach(([name, raw]) => {
+    const field = FIELDS[name];
+    if (!field || !allowed.includes(name)) return;
+    const value = normalize(field, String(raw).trim());
+    if (!value) return;
+    if (!isValid(field, value)) return rejected.push(field.label);
+    state.data[name] = value;
+    saveProfile({ ...loadProfile(), [name]: value });
+  });
+  state.queue = allowed.filter((name) => !state.data[name]);
+  renderProfile();
+  return rejected;
+};
+
+const converse = async (text) => {
+  say(text, "u");
+  history.push({ role: "user", content: text });
   const bubble = say("…");
-  const { data } = await authFetch(C.ai.apiUrl, { message: question, history: history.slice(-10) });
-  const reply = data.reply || C.ai.fallback;
-  bubble.textContent = reply;
-  history.push({ role: "assistant", content: reply });
+  const { ok, data } = await authFetch(api.agent, { message: text, history: history.slice(-10), context: context() });
+  if (!ok) {
+    bubble.remove();
+    if (state.mode === "ask") return submitAnswer(text);
+    return say(data.error || C.ai.fallback);
+  }
+  if (data.reply) {
+    bubble.textContent = data.reply;
+    history.push({ role: "assistant", content: data.reply });
+  } else {
+    bubble.remove();
+  }
+  if (data.action === "cancel" && state.key) return cancel();
+  const key = FORMS[data.form] ? data.form : state.key;
+  if (!key) return;
+  if (state.key !== key) beginForm(key);
+  const fill = { ...(data.fill || {}) };
+  const asking = state.mode === "ask" ? state.queue[0] : null;
+  if (asking && !fill[asking] && !text.includes("?") && isValid(FIELDS[asking], normalize(FIELDS[asking], text))) fill[asking] = text;
+  const rejected = applyFill(fill);
+  if (rejected.length) say(`I could not accept: ${rejected.join(", ")}. Please check ${rejected.length > 1 ? "them" : "it"}.`);
+  if (!state.queue.length) {
+    if (data.action === "send_otp" && !rejected.length && state.mode === "review") return sendOtp();
+    if (Object.keys(fill).length || state.mode !== "review") review();
+    return;
+  }
+  askNext();
 };
 
 $("#chatForm").addEventListener("submit", (event) => {
@@ -226,14 +288,11 @@ $("#chatForm").addEventListener("submit", (event) => {
   const value = input.value.trim();
   if (!value) return;
   input.value = "";
-  if (state.mode === "ask") {
-    say(value, "u");
-    submitAnswer(value);
-  } else if (state.mode === "otp") {
+  if (state.mode === "otp") {
     say("••••••", "u");
     verifyOtp(value);
   } else {
-    chat(value);
+    converse(value);
   }
 });
 
@@ -251,5 +310,6 @@ $("#clear").addEventListener("click", () => {
 
 $("#suggestions").innerHTML = C.programmes.map((name) => `<option value="${name.replace(/"/g, "&quot;")}">`).join("");
 say(C.agent.welcome);
+say("You can also type naturally, for example: \"admission form bharo, mera naam Aamir hai, 12th mein 92%\". I will fill what I understand.");
 renderProfile();
 showMenu();
