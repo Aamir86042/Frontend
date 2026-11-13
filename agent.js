@@ -1,7 +1,7 @@
-import { config as C } from "./config.js";
-import { getToken, getUser, clearSession } from "./session.js";
+import { config as C } from "./config2.js";
+import { getToken, getUser, clearSession, loginUrl } from "./session.js";
 
-// Login is NOT required here. Guests can use the agent directly.
+if (!getToken()) location.replace(loginUrl(C.auth.pages.agent));
 
 const { api } = C.auth;
 const { fields: FIELDS, forms: FORMS } = C.agent;
@@ -25,22 +25,20 @@ const loadProfile = () => {
 
 const saveProfile = (profile) => localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
 
-// Token is optional: sent only if the user happens to be logged in.
-// No redirect on 401.
 const authFetch = async (url, body) => {
   try {
-    const token = getToken();
     const response = await fetch(url, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token && { Authorization: `Bearer ${token}` }),
-      },
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
       body: JSON.stringify(body),
     });
+    if (response.status === 401) {
+      clearSession();
+      location.replace(loginUrl(C.auth.pages.agent));
+      return { ok: false, data: {} };
+    }
     return { ok: response.ok, data: await response.json().catch(() => ({})) };
-  } catch (error) {
-    console.warn("Request failed:", url, error);
+  } catch {
     return { ok: false, data: { error: "Cannot reach the server." } };
   }
 };
@@ -208,9 +206,8 @@ const chat = async (question) => {
   say(question, "u");
   history.push({ role: "user", content: question });
   const bubble = say("…");
-  const { ok, data } = await authFetch(C.ai.apiUrl, { message: question, history: history.slice(-10) });
-  console.log("AI response:", ok, data);
-  const reply = data.reply || data.message || data.text || data.answer || data.error || C.ai.fallback;
+  const { data } = await authFetch(C.ai.apiUrl, { message: question, history: history.slice(-10) });
+  const reply = data.reply || C.ai.fallback;
   bubble.textContent = reply;
   history.push({ role: "assistant", content: reply });
 };
@@ -231,15 +228,12 @@ $("#chatForm").addEventListener("submit", (event) => {
   }
 });
 
-// Logout button is optional (guests may not have one).
-$("#logout")?.addEventListener("click", () => {
-  const wasLoggedIn = Boolean(getToken());
+$("#logout").addEventListener("click", () => {
   clearSession();
-  if (wasLoggedIn) location.reload();
-  else location.replace(C.auth.pages.login);
+  location.replace(C.auth.pages.login);
 });
 
-$("#clear")?.addEventListener("click", () => {
+$("#clear").addEventListener("click", () => {
   if (!confirm("Delete all details saved in this browser?")) return;
   localStorage.removeItem(PROFILE_KEY);
   renderProfile();
