@@ -486,6 +486,7 @@ if (!AI || !AI.enabled) {
     hist.push({ role: "user", content: q });
     const w = add("…", "b");
     let r = null;
+    let err = "";
     try {
       if (AI.apiUrl) {
         const res = await fetch(AI.apiUrl, {
@@ -498,15 +499,15 @@ if (!AI || !AI.enabled) {
           location.href = loginUrl(C.auth.pages.home + "#ai");
           return;
         }
-        if (res.ok) {
-          const d = await res.json();
-          r = d.reply || d.message || d.text || d.answer;
-        }
+        const d = await res.json().catch(() => ({}));
+        if (res.ok) r = d.reply || d.message || d.text || d.answer;
+        else err = d.error || `Server error (${res.status})`;
       }
     } catch (e) {
       console.warn("AI error:", e);
+      err = "Cannot reach the server.";
     }
-    r = r || AI.fallback;
+    r = r || err || AI.fallback;
     w.textContent = r;
     hist.push({ role: "assistant", content: r });
     box.scrollTop = box.scrollHeight;
