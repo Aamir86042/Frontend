@@ -5,6 +5,10 @@ export const config = {
     tagline: "A place to learn, a chance to grow",
     logoText: "VIT",
   },
+  //agent
+  ai: { apiUrl: "https://backend-production-6aefa9f3.up.railway.app/api/chat", ... }
+auth: { api: { otpSend: "https://backend-production-6aefa9f3.up.railway.app/api/...", ... } }
+// end
 
   contact: {
     email: "ugadmission@vit.ac.in",
