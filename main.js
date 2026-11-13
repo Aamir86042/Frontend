@@ -65,7 +65,7 @@ $$("[data-ic]").forEach((e) => e.insertAdjacentHTML("afterbegin", ic(e.dataset.i
 const user = getUser();
 const accountLink = () =>
   user
-    ? `<a href="#" id="logout">${ic("user")} ${esc(user.name.split(" ")[0])} · Logout</a>`
+    ? `<a href="#" id="logout">${ic("user")} ${esc(String(user.name || "Account").split(" ")[0])} · Logout</a>`
     : `<a href="${C.auth.pages.login}">${ic("user")} Sign in</a>`;
 
 const U = C.university;
