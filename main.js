@@ -1,4 +1,4 @@
-import { config as C } from "./config.js";
+import { config as C } from "./config2.js";
 import { getToken, getUser, clearSession, loginUrl } from "./session.js";
 
 const P = {
