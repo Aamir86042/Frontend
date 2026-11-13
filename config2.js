@@ -18,6 +18,7 @@ export const config = {
       otpSend:     url("/api/otp/send"),
       otpVerify:   url("/api/otp/verify"),
       formSubmit:  url("/api/forms/submit"),
+      agent:       url("/api/agent"),
     },
   },
 
