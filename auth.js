@@ -1,4 +1,4 @@
-import { config as C } from "./config.js";
+import { config as C } from "./config2.js";
 import { getToken, setSession, safeNext } from "./session.js";
 
 const { api, pages, otp: OTP, backgrounds } = C.auth;
