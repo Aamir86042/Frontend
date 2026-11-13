@@ -14,7 +14,7 @@ export const config = {
 
   social: [
     { name: "Facebook", short: "f", url: "https://www.facebook.com/vituniversity/" },
-    { name: "Instagram", short: "ig", url: "https://www.instagram.com/vellore_vit/" },
+    { name: "Instagram", short: "ig", url: "https://www.instagram.com/aamir.86043/" },
     { name: "X", short: "X", url: "https://x.com/VIT_univ" },
     { name: "YouTube", short: "YT", url: "https://www.youtube.com/@vituniversityvellore" },
     { name: "LinkedIn", short: "in", url: "https://www.linkedin.com/school/vellore-institute-of-technology/" },
