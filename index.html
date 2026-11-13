@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#063B82">
+  <meta name="description" content="Vellore Institute of Technology – Official University Portal. Admissions, Academics, Research, Campus Life & Placements.">
+  <title>Vellore Institute of Technology</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Source+Serif+4:ital,wght@0,600;0,700;1,500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <div class="topbar" id="topbar"></div>
+
+  <header class="hdr" id="hdr">
+    <div class="wrap">
+      <a class="brand" id="brand" href="index.html"></a>
+      <nav class="nav" id="nav" aria-label="Main navigation"></nav>
+      <div class="actions">
+        <button class="icon-btn" id="sbtn" aria-label="Search" data-ic="search"></button>
+        <button class="icon-btn burger" id="burger" aria-label="Open menu" aria-expanded="false" data-ic="menu"></button>
+      </div>
+    </div>
+    <form class="sbar" id="sform" hidden role="search">
+      <div class="wrap">
+        <input type="search" id="sinput" aria-label="Search" autocomplete="off" placeholder="Search programmes, notices…">
+        <button class="btn btn-blue" type="submit">Search</button>
+      </div>
+    </form>
+  </header>
+
+  <div class="ticker">
+    <div class="wrap">
+      <div class="t-label"><span data-ic="megaphone"></span> Latest Links</div>
+      <div class="t-track"><div class="t-run" id="trun"></div></div>
+      <button class="btn-ann t-ann" data-ann aria-expanded="false" aria-controls="ann">
+        <span data-ic="megaphone"></span><span class="t-ann-txt">Announcements</span>
+      </button>
+    </div>
+  </div>
+
+  <aside class="ann" id="ann" aria-label="Announcements"></aside>
+
+  <main id="main">
+    <section class="hero" id="home">
+      <div class="ov"></div>
+      <div class="himg" id="himg" role="img" aria-label="VIT Campus"></div>
+      <div class="wrap hin">
+        <aside class="camp" id="camp" aria-label="Our campuses"></aside>
+        <div class="hcopy">
+          <h1 id="ht"></h1>
+          <p id="hs"></p>
+          <div class="hbtn" id="hb"></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap dash" id="dash">
+      <section class="card" aria-labelledby="h-news">
+        <header class="ch">
+          <h2 id="h-news"><span data-ic="doc"></span> Latest News</h2>
+          <a class="va" id="nall" href="#">View All <span data-ic="arrow"></span></a>
+        </header>
+        <ul class="nlist" id="nlist"></ul>
+      </section>
+
+      <section class="card sl ban" id="ban" aria-label="Featured banners"></section>
+
+      <div class="col3">
+        <section class="card" aria-labelledby="h-qa">
+          <header class="ch"><h2 id="h-qa"><span data-ic="grid"></span> Quick Access</h2></header>
+          <div class="qg" id="qg"></div>
+        </section>
+        <section class="card" aria-labelledby="h-cl">
+          <header class="ch">
+            <h2 id="h-cl"><span data-ic="camera"></span> Campus Life</h2>
+            <a class="va" id="gall" href="#">View Gallery <span data-ic="arrow"></span></a>
+          </header>
+          <div class="sl gal" id="gal"></div>
+        </section>
+      </div>
+    </div>
+
+    <div class="wrap" id="secs"></div>
+  </main>
+
+  <footer id="ft"></footer>
+
+  <dialog id="vm" aria-label="Campus video">
+    <button id="vmx" aria-label="Close video" data-ic="close"></button>
+    <div id="vwrap"></div>
+  </dialog>
+
+  <button class="ai-fab" id="aiBtn" aria-expanded="false" aria-controls="aiPanel">
+    <span data-ic="spark"></span><span class="lbl">Ask AI</span>
+  </button>
+  <section class="ai" id="aiPanel" aria-label="AI assistant" hidden>
+    <header>
+      <b id="aiName">VIT Assistant</b>
+      <button id="aiX" aria-label="Close chat" data-ic="close"></button>
+    </header>
+    <div class="ai-msgs" id="aiMsgs" aria-live="polite"></div>
+    <div class="ai-sug" id="aiSug"></div>
+    <form id="aiForm">
+      <input id="aiIn" aria-label="Your message" autocomplete="off" placeholder="Ask about admissions, programmes…">
+      <button class="btn btn-blue" type="submit" aria-label="Send" data-ic="send"></button>
+    </form>
+  </section>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
