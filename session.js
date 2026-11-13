@@ -1,4 +1,4 @@
-import { config as C } from "./config.js";
+import { config as C } from "./config2.js";
 
 const { token: TOKEN_KEY, user: USER_KEY } = C.auth.storage;
 
