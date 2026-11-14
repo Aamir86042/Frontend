@@ -1,5 +1,17 @@
 import { config as C } from "./config2.js";
-import { getToken, setSession, clearSession, safeNext } from "./session.js";
+
+const TOKEN_KEY = "portal_student_token";
+const USER_KEY = "portal_student_user";
+const getToken = () => localStorage.getItem(TOKEN_KEY);
+const setSession = (value, user) => {
+  localStorage.setItem(TOKEN_KEY, value);
+  localStorage.setItem(USER_KEY, JSON.stringify(user));
+};
+const clearSession = () => {
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(USER_KEY);
+};
+const safeNext = (value) => (value && /^[\w-]+\.html(#\w+)?$/.test(value) ? value : "index.html");
 
 const SITE_KEY = "0x4AAAAAAGAlLIy38d4CYu7Q";
 const nextUrl = safeNext(new URLSearchParams(location.search).get("next"));
@@ -55,6 +67,15 @@ const showNote = (text) => {
   slot.replaceChildren(note);
 };
 
+const describeError = (code) => {
+  const value = String(code || "");
+  if (value === "110200") return `The domain ${location.hostname} is not allowed for this Turnstile site key. Add it under the widget's hostnames in the Cloudflare dashboard.`;
+  if (["110100", "110110", "400020"].includes(value)) return "The Turnstile site key is invalid. Check it in the Cloudflare dashboard.";
+  if (value.startsWith("200")) return "Your device date or time looks wrong. Fix it and retry.";
+  if (value.startsWith("300") || value.startsWith("600")) return "The challenge could not be completed. Turn off ad blockers or VPN and retry.";
+  return "Cloudflare could not verify this browser.";
+};
+
 const renderTurnstile = () => {
   widgetId = window.turnstile.render(slot, {
     sitekey: SITE_KEY,
@@ -68,9 +89,9 @@ const renderTurnstile = () => {
       setCaptcha("Verification expired. Please complete the check again.");
       say("Your security check expired. Please try again.", "error");
     },
-    "error-callback": () => {
+    "error-callback": (code) => {
       setCaptcha("Could not verify right now. Please retry.");
-      say("Cloudflare verification failed to load. Check your connection and retry.", "error");
+      say(`${describeError(code)} (Cloudflare error ${code || "unknown"})`, "error");
       return true;
     },
     "timeout-callback": () => {
