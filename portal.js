@@ -13,7 +13,7 @@ const clearSession = () => {
 };
 const safeNext = (value) => (value && /^[\w-]+\.html(#\w+)?$/.test(value) ? value : "index.html");
 
-const SITE_KEY = "0x4AAAAAAGAlLIy38d4CYu7Q";
+const SITE_KEY = "0x4AAAAAAGAnXXEamoLwXmxl";
 const nextUrl = safeNext(new URLSearchParams(location.search).get("next"));
 
 
