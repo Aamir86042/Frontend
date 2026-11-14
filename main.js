@@ -489,7 +489,10 @@ if (!AI || !AI.enabled) {
     let err = "";
     try {
       if (AI.apiUrl) {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 40000);
         const res = await fetch(AI.apiUrl, {
+          signal: controller.signal,
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: "Bearer " + getToken() },
           body: JSON.stringify({ message: q, history: hist.slice(-10) }),
@@ -499,13 +502,14 @@ if (!AI || !AI.enabled) {
           location.href = loginUrl(C.auth.pages.home + "#ai");
           return;
         }
+        clearTimeout(timer);
         const d = await res.json().catch(() => ({}));
         if (res.ok) r = d.reply || d.message || d.text || d.answer;
         else err = d.error || `Server error (${res.status})`;
       }
     } catch (e) {
       console.warn("AI error:", e);
-      err = "Cannot reach the server.";
+      err = e && e.name === "AbortError" ? "The AI is taking too long. Please try again." : "Cannot reach the server.";
     }
     r = r || err || AI.fallback;
     w.textContent = r;
