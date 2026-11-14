@@ -23,7 +23,7 @@ export const config = {
   ],
 
   logins: {
-    student: { title: "Student Login", url: "https://vtop.vit.ac.in/vtop/open/page" },
+    student: { title: "Student Login", url: "portal.html" },
     faculty: { title: "Faculty Login", url: "https://vtop.vit.ac.in/vtop/open/page" },
   },
 
