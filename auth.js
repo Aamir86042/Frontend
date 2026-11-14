@@ -1,5 +1,5 @@
 import { config as C } from "./config2.js";
-import { getToken, setSession, safeNext } from "./session.js";
+import { getToken, setSession, clearSession, safeNext } from "./session.js";
 
 const { api, pages, otp: OTP, backgrounds = [] } = C.auth;
 
@@ -297,8 +297,36 @@ mountBackground();
 mountPasswordToggles();
 mountStrengthMeter();
 
-if (getToken() && page !== "forgot") {
-  location.replace(nextUrl);
-} else {
-  ({ login: initLogin, signup: initSignup, forgot: initForgot })[page]?.();
-}
+const showSignedIn = (user) => {
+  const form = $(".panel form");
+  if (!form) return;
+  const note = document.createElement("p");
+  note.className = "alt";
+  note.append(`Already signed in as ${user.name || user.email || "your account"}. `);
+  const go = document.createElement("a");
+  go.href = nextUrl;
+  go.textContent = "Continue";
+  const out = document.createElement("a");
+  out.href = "#";
+  out.textContent = "Sign out";
+  out.addEventListener("click", (event) => {
+    event.preventDefault();
+    clearSession();
+    note.remove();
+  });
+  note.append(go, " · ", out);
+  form.before(note);
+};
+
+const checkSession = async () => {
+  try {
+    const response = await fetch(api.me, { headers: { Authorization: `Bearer ${getToken()}` } });
+    if (response.status === 401 || response.status === 404) return clearSession();
+    if (response.ok) showSignedIn((await response.json()).user || {});
+  } catch {
+    return;
+  }
+};
+
+({ login: initLogin, signup: initSignup, forgot: initForgot })[page]?.();
+if (getToken() && page !== "forgot") checkSession();
