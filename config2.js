@@ -13,6 +13,7 @@ export const config = {
       signupOtp:   url("/api/auth/signup/otp"),
       signup:      url("/api/auth/signup"),
       login:       url("/api/auth/login"),
+      portalLogin: url("/api/auth/portal-login"),
       forgot:      url("/api/auth/forgot"),
       reset:       url("/api/auth/reset"),
       otpSend:     url("/api/otp/send"),
