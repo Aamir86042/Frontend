@@ -1,10 +1,9 @@
 import { config as C } from "./config2.js";
-import { getToken, setSession, safeNext } from "./session.js";
+import { getToken, setSession, clearSession, safeNext } from "./session.js";
 
 const SITE_KEY = "0x4AAAAAAGAlLIy38d4CYu7Q";
 const nextUrl = safeNext(new URLSearchParams(location.search).get("next"));
 
-if (getToken()) location.replace(nextUrl);
 
 const $ = (selector) => document.querySelector(selector);
 const form = $("#loginForm");
@@ -15,6 +14,7 @@ const usernameInput = $("#username");
 const passwordInput = $("#password");
 const slot = $("#turnstile-widget");
 const roles = $("#roles");
+const sessionBox = $("#sessionBox");
 
 let widgetId = null;
 let token = "";
@@ -159,4 +159,25 @@ form.addEventListener("submit", async (event) => {
   say(data.error || "Sign in failed. Please try again.", "error");
   passwordInput.value = "";
   resetCaptcha();
+});
+
+const checkSession = async () => {
+  try {
+    const response = await fetch(C.auth.api.me, { headers: { Authorization: `Bearer ${getToken()}` } });
+    if (response.status === 401 || response.status === 404) return clearSession();
+    if (!response.ok) return;
+    const { user } = await response.json();
+    $("#sessionName").textContent = (user && (user.name || user.email)) || "your account";
+    sessionBox.hidden = false;
+  } catch {
+    return;
+  }
+};
+
+if (getToken()) checkSession();
+
+$("#continueButton").addEventListener("click", () => location.assign(nextUrl));
+$("#signOutButton").addEventListener("click", () => {
+  clearSession();
+  sessionBox.hidden = true;
 });
