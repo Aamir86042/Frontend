@@ -27,7 +27,7 @@ const saveProfile = (profile) => localStorage.setItem(PROFILE_KEY, JSON.stringif
 
 const authFetch = async (url, body) => {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 25000);
+  const timer = setTimeout(() => controller.abort(), 40000);
   try {
     const response = await fetch(url, {
       method: "POST",
@@ -260,9 +260,11 @@ const converse = async (text) => {
     if (state.mode === "ask") return submitAnswer(text);
     return say(data.error || C.ai.fallback);
   }
-  if (data.reply) {
-    bubble.textContent = data.reply;
-    history.push({ role: "assistant", content: data.reply });
+  const nothing = !data.form && !Object.keys(data.fill || {}).length && data.action === "none" && !state.key;
+  const reply = data.reply || (nothing ? "Sorry, I did not get that. Pick a form below or ask your question again." : "");
+  if (reply) {
+    bubble.textContent = reply;
+    history.push({ role: "assistant", content: reply });
   } else {
     bubble.remove();
   }
